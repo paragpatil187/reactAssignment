@@ -1,82 +1,101 @@
-import React, { useEffect, useState } from 'react'
-import "./circle.css"
+import React, { useEffect, useState } from "react";
+import "./circle.css";
+import { v4 as uuidv4 } from "uuid";
 
 const Circle = () => {
-  const [circle,setCircle]=useState("");
-  const [arr,setArr]=useState([])
-  const [baloonArr,setBaloonArr]=useState([])
+  const [circleno, setCircleno] = useState("");
+  const [arr, setArr] = useState([]);
+  const [baloonArr, setBaloonArr] = useState([]);
 
-  const colorgenerate =()=>{
-    var colors=[];
-  function generateRandomColor() {
-    
-    
-    var letters = '0123456789ABCDEF';
-    var color = '#';
-    for (var i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
+  const colorgenerate = () => {
+    var colors = [];
+    function generateRandomColor() {
+      var letters = "0123456789ABCDEF";
+      var color = "#";
+      for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      //console.log("color", color);
+      return color;
     }
-    console.log("color",color)
-    return color
-  }
-  for(let j=0;j<5;j++){
-    colors.push(generateRandomColor())
-  }
-  console.log("colors",colors)
-  setArr(colors)
-  }
+    for (let j = 0; j < 5; j++) {
+      colors = [
+        ...colors,
+        { id: j, value: generateRandomColor(), key: uuidv4() },
+      ];
+    }
+   // console.log("colors", colors);
+    setArr(colors);
+  };
 
-console.log(arr)
-  useEffect(()=>{
-   colorgenerate()
-  },[])
-  
-  console.log(arr)
-  const handleSubmit= (e) => {
-    if(circle>5 || circle<1){
-      return alert("provide value 1 to 5")
-    } 
-    //const selecteditem=arr[circle-1]
-   // console.log(selecteditem)
-  //  var newarr= arr.splice(circle-1,1)
-  //   console.log("arr",arr)
-  setBaloonArr(arr[circle-1])
-  let colorfilter=arr.filter((e)=>e!= arr[circle-1]);
-  setArr(colorfilter)
+  //console.log(arr);
+  useEffect(() => {
+    colorgenerate();
+  }, []);
 
+  const handleSubmit = (e) => {
+    if (circleno > arr.length || circleno < 1) {
+      return alert(`provide value 1 to ${arr.length}`);
+    }
 
-    
-  }
-  console.log("finalarr",arr)
-  
+    let colorfilter = arr.filter((e) => e != arr[circleno - 1]);
+    setArr(colorfilter);
+
+    setBaloonArr([...baloonArr, arr[circleno - 1]]);
+  };
+
+  //console.log("ballonarray", baloonArr);
+  const handleClick = (key, e) => {
+    let newAraay = baloonArr.filter((e) => key != e.key);
+    setBaloonArr(newAraay);
+    //console.log("newAraay", newAraay);
+    let sortedarray = [...arr, e];
+    sortedarray = sortedarray.sort((a, b) => a.id - b.id);
+    setArr(sortedarray);
+  };
+
   return (
     <>
-    <div className='maindiv'>
-    <div className="emptydiv"></div>
-    <div className='circlediv'>
-    {arr.map((e,index)=>{
-      return(
-        <div key={index}  className='circlewithcolor' style={{"backgroundColor":e}}></div>
-      )
-      
-
-    
-  })
-}
-
-    
-    
-    
-    </div>
-    <div>
-    
-    <input type="number" placeholder='enter circle number' name="circle" value={circle} onChange={e=>setCircle(e.target.value)} />
-    <button onClick={handleSubmit} > Shoot</button>
-    
-    </div>
-    </div>
+    <div className="parentdiv">
+    <div className="shooterinput">
+          <input
+            type="number"
+            placeholder="enter circle number"
+            name="circle"
+            value={circleno}
+            onChange={(e) => setCircleno(e.target.value)}
+          />
+          <button onClick={handleSubmit}> Shoot</button>
+        </div>
+      <div className="maindiv">
+        <div className="emptydiv">
+          {baloonArr.map((e, i) => {
+            return (
+              <div
+                key={e.key}
+                className="emptydivcircles"
+                onClick={() => handleClick(e.key, e)}
+                style={{ backgroundColor: e.value }}
+              ></div>
+            );
+          })}
+        </div>
+        <div className="circlediv">
+          {arr.map((e, index) => {
+            return (
+              <div
+                key={index}
+                className="circlewithcolor"
+                style={{ backgroundColor: e.value }}
+              ></div>
+            );
+          })}
+        </div>
+        
+      </div>
+      </div>
     </>
-  )
-}
+  );
+};
 
-export default Circle
+export default Circle;
